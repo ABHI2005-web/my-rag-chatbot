@@ -44,8 +44,8 @@ def initialize_rag_system():
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     docs = text_splitter.split_documents(documents)
     
-    # 4. Corrected Model API mapping for cloud-based embeddings
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=GOOGLE_API_KEY) 
+    # 4. Using the clean, unprefixed string to avoid double-prefix API routing errors
+    embeddings = GoogleGenerativeAIEmbeddings(model="text-embedding-004", google_api_key=GOOGLE_API_KEY) 
     
     # 5. Build the FAISS database index
     vector_store = FAISS.from_documents(docs, embeddings)
@@ -104,5 +104,5 @@ if user_query := st.chat_input("Type your question here..."):
                 
             except Exception as e:
                 st.error(f"Oops! I hit an error trying to process that: {e}")
-    
-    
+   
+
