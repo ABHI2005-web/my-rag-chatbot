@@ -28,35 +28,34 @@ DB_FAISS_PATH = "vector_db/db_faiss"
 @st.cache_resource
 def initialize_rag_system():
     """
-    This function loads our text file, chops it into tiny chunks, 
-    turns those chunks into math vectors using Google cloud embeddings, and saves it locally.
+    Loads text, splits into segments, and computes embeddings using Google GenAI cloud service.
     """
-    # 1. Check if the file even exists first!
+    # 1. Check if the directory and file exist
     if not os.path.exists(DATA_PATH):
         os.makedirs("data", exist_ok=True)
         with open(DATA_PATH, "w") as f:
             f.write("Hello! This is a backup knowledge base. The RAG system is working fine!")
     
-    # 2. Load the document text using LangChain's TextLoader
+    # 2. Load the document text
     loader = TextLoader(DATA_PATH)
     documents = loader.load()
     
-    # 3. Chop the text into smaller parts (chunking) so the model can read it easily
+    # 3. Chop the text into pieces
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     docs = text_splitter.split_documents(documents)
     
-    # 4. Use Google's cloud-hosted model for embeddings (super lightweight on RAM!)
+    # 4. Corrected Model API mapping for cloud-based embeddings
     embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=GOOGLE_API_KEY) 
     
-    # 5. Build the FAISS Vector Database using our chopped text documents and embeddings
+    # 5. Build the FAISS database index
     vector_store = FAISS.from_documents(docs, embeddings)
     
-    # 6. Save the database locally so we don't have to rebuild it every time
+    # 6. Save locally inside the container
     vector_store.save_local(DB_FAISS_PATH)
     
     return vector_store
 
-# Trigger the system setup function
+# Trigger the database setup
 try:
     vector_store = initialize_rag_system()
     retriever = vector_store.as_retriever(search_kwargs={"k": 2})
@@ -105,3 +104,5 @@ if user_query := st.chat_input("Type your question here..."):
                 
             except Exception as e:
                 st.error(f"Oops! I hit an error trying to process that: {e}")
+    
+    
