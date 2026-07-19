@@ -2,7 +2,8 @@ import os
 import streamlit as st
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# MAKE SURE THIS IMPORT IS PRESENT:
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import create_retrieval_chain
@@ -51,7 +52,8 @@ def initialize_rag_system():
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     docs = text_splitter.split_documents(documents)
     
-    # 4. Grab the embedding model recommended in our reference guide: all-MiniLM-L6-v2
+    # REPLACE WITH THIS:
+embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004") 
     # This turns plain text sentences into lists of numbers that represent meanings.
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     
